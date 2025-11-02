@@ -4,26 +4,28 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Book } from '@/types';
+import { Book, custom_shelves } from '@/types';
 
-export default function HomePage() {
+export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
+  const [shelves, setShelves] = useState<custom_shelves[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/dashboard');
+    if (status === 'unauthenticated') {
+      router.push('/login');
     }
   }, [status, router]);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (session) {
       fetchBooks();
+      fetchShelves();
     }
-  }, [status]);
+  }, [session]);
 
   const fetchBooks = async () => {
     try {
@@ -34,6 +36,16 @@ export default function HomePage() {
       console.error('Error fetching books:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchShelves = async () => {
+    try {
+      const response = await fetch('/api/shelves');
+      const data = await response.json();
+      setShelves(data.shelves || []);
+    } catch (error) {
+      console.error('Error fetching shelves:', error);
     }
   };
 
@@ -50,7 +62,7 @@ export default function HomePage() {
     }
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
         <div className="text-xl text-gray-300">Loading...</div>
@@ -58,43 +70,35 @@ export default function HomePage() {
     );
   }
 
-  if (status === 'authenticated') {
+  if (!session) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Hero Header */}
-      <header className="relative overflow-hidden border-b border-[#2a2a2a] bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a]">
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              <span className="gradient-text">Book Tracker</span>
-          </h1>
-            <p className="text-xl text-gray-300 mb-8">Discover, organize, and track your reading journey</p>
-            <div className="flex gap-4 justify-center">
-              <Link
-                href="/login"
-                className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all font-medium shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/register"
-                className="px-8 py-3 border-2 border-[#2a2a2a] text-gray-200 rounded-lg hover:border-indigo-600 hover:text-indigo-400 transition-all font-medium"
-              >
-                Register
-              </Link>
+      {/* Header */}
+      <header className="bg-[#1a1a1a] border-b border-[#2a2a2a] shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <h1 className="text-2xl font-bold">
+                <span className="gradient-text">Book Tracker</span>
+              </h1>
+              <p className="text-sm text-gray-400">Welcome back, {session.user?.name || session.user?.email}</p>
             </div>
+            <Link
+              href="/api/auth/signout"
+              className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-gray-100 transition-colors"
+            >
+              Sign Out
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search Bar */}
-        <div className="mb-12">
+        <div className="mb-8">
           <div className="flex gap-4">
             <input
               type="text"
@@ -113,9 +117,38 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* My Shelves Section */}
+        {shelves.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-100 mb-6">My Shelves</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {shelves.map((shelf) => (
+                <Link
+                  key={shelf.Shelf_id}
+                  href={`/shelf/${shelf.Shelf_id}`}
+                  className="card-hover bg-[#1a1a1a] rounded-lg p-6 border border-[#2a2a2a] group"
+                >
+                  <h3 className="text-lg font-medium text-gray-100 mb-2 group-hover:text-indigo-400 transition-colors">
+                    {shelf.Shelf_name}
+                  </h3>
+                  <p className="text-sm text-gray-400">{shelf.description || 'No description'}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Books Grid */}
         <div>
-          <h2 className="text-3xl font-bold text-gray-100 mb-8">Explore Our Collection</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-100">Books</h2>
+            <Link
+              href="/shelf/new"
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-sm font-medium shadow-lg shadow-indigo-500/20"
+            >
+              Create New Shelf
+            </Link>
+          </div>
 
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -138,7 +171,7 @@ export default function HomePage() {
               {books.map((book) => (
                 <Link
                   key={book.Book_id}
-                  href="/login"
+                  href={`/book/${book.Book_id}`}
                   className="card-hover bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] overflow-hidden group"
                 >
                   {book.CoverImage_URL ? (
@@ -174,18 +207,6 @@ export default function HomePage() {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-16 text-center py-16 bg-gradient-to-r from-indigo-600/10 via-purple-600/10 to-pink-600/10 rounded-xl border border-[#2a2a2a]">
-          <h3 className="text-2xl font-bold text-gray-100 mb-4">Ready to start tracking?</h3>
-          <p className="text-gray-400 mb-8">Create an account to organize your personal library</p>
-          <Link
-            href="/register"
-            className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all font-medium shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30"
-          >
-            Get Started Free
-          </Link>
         </div>
       </div>
     </div>

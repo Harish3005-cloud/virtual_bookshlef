@@ -24,20 +24,20 @@ export interface User {
 }
 
 // 
-/**Custome_shelves Table */
+/**custom_shelves Table */
 export interface custom_shelves{
     Shelf_id:number;
     user_id:number;
-    shelf_name:string;
+    Shelf_name:string;
     description:string;
     dateCreated: string; 
 }
 
 // 
-/**shlef_items Table */
+/**shelf_items Table */
 export interface shelf_items{
     item_id: number;
-  Shelf_id: number;
+  shelf_id: number;
   book_id: number;
   added_date: string;
   
