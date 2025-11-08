@@ -3,9 +3,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { query } from '@/lib/db';
 
+// Define the type for the route context specifically
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,6 +19,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Await the params object here
     const { id } = await params;
     const body = await request.json();
 
@@ -82,7 +88,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteContext
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -91,6 +97,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Await the params object here
     const { id } = await params;
 
     // Verify shelf belongs to user
@@ -113,4 +120,3 @@ export async function DELETE(
     return NextResponse.json({ error: 'Failed to delete shelf item' }, { status: 500 });
   }
 }
-
