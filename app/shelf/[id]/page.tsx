@@ -76,12 +76,20 @@ export default function ShelfDetailPage() {
 
   const handleSaveEdit = async (itemId: number) => {
     try {
+      // Format dates to YYYY-MM-DD
+      const formattedEditForm = {
+        ...editForm,
+        start_date: editForm.start_date || null,
+        finish_date: editForm.finish_date || null,
+        is_favorite: editForm.is_favorite || 0
+      };
+
       const response = await fetch(`/api/shelf-items/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify(formattedEditForm),
       });
 
       if (response.ok) {
@@ -287,6 +295,49 @@ export default function ShelfDetailPage() {
                           className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
                           placeholder="Rating"
                         />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-400 mb-1">
+                            Start Date (YYYY-MM-DD)
+                          </label>
+                          <input
+                            type="text"
+                            value={editForm.start_date || ''}
+                            onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+                            className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                            placeholder="YYYY-MM-DD"
+                            pattern="\d{4}-\d{2}-\d{2}"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-gray-400 mb-1">
+                            Finish Date (YYYY-MM-DD)
+                          </label>
+                          <input
+                            type="text"
+                            value={editForm.finish_date || ''}
+                            onChange={(e) => setEditForm({ ...editForm, finish_date: e.target.value })}
+                            className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                            placeholder="YYYY-MM-DD"
+                            pattern="\d{4}-\d{2}-\d{2}"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`favorite-${item.item_id}`}
+                          checked={editForm.is_favorite === 1 || item.is_favorite === 1}
+                          onChange={(e) => setEditForm({ ...editForm, is_favorite: e.target.checked ? 1 : 0 })}
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-600 border-gray-700 rounded bg-[#0a0a0a]"
+                        />
+                        <label htmlFor={`favorite-${item.item_id}`} className="text-sm font-medium text-gray-300">
+                          Favorite
+                        </label>
                       </div>
 
                       <div className="flex gap-2 pt-2">

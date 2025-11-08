@@ -16,11 +16,7 @@ export default function BookDetailPage() {
     const [selectedShelf, setSelectedShelf] = useState('');
     const [readingStatus, setReadingStatus] = useState<'Read' | 'Reading' | 'To-Read'>('To-Read');
     const [ownershipStatus, setOwnershipStatus] = useState('Owned');
-    const [rating, setRating] = useState(0);
-    const [favorite, setFavorite] = useState('No');
-    const [currentPage, setCurrentPage] = useState(0);
-    const [startDate, setStartDate] = useState('');
-    const [finishDate, setFinishDate] = useState('');
+  
     const [loading, setLoading] = useState(true);
     const [addingToShelf, setAddingToShelf] = useState(false);
 
@@ -70,11 +66,7 @@ export default function BookDetailPage() {
                     book_id: book.Book_id,
                     reading_status: readingStatus,
                     ownership_status: ownershipStatus,
-                    current_page: currentPage,
-                    start_date: startDate,
-                    finish_date: finishDate,
-                    user_rating: rating,
-                    is_favorite: favorite,
+                
                 }),
             });
 
@@ -264,64 +256,6 @@ export default function BookDetailPage() {
                                                     <option value="Library">Library</option>
                                                     <option value="Borrowed">Borrowed</option>
                                                 </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                                    Rating (1-5)
-                                                </label>
-                                                <select
-                                                    value={rating}
-                                                    onChange={(e) => setRating(parseInt(e.target.value))}
-                                                    className="w-full rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] px-4 py-2 text-white-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
-                                                >
-                                                    <option value="1">1</option>
-                                                    <option value="2">2</option>
-                                                    <option value="3">3</option>
-                                                    <option value="4">4</option>
-                                                    <option value="5">5</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                                    Favorite
-                                                </label>
-                                                <select
-                                                    value={favorite}
-                                                    onChange={(e) => setFavorite(e.target.value)}
-                                                    className="w-full rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] px-4 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
-                                                >
-                                                    <option value="Yes">Yes</option>
-                                                    <option value="No">No</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                                    Start Date
-                                                </label>
-                                                <input
-                                                    value={startDate}
-                                                    
-                                                    placeholder='Start Date in (yyyy-mm-dd) format'
-                                                    onChange={(e) => setStartDate(e.target.value)}
-                                                    className="w-full rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] px-4 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
-                                               / >
-                                                   
-                                                    
-                                              
-
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                                    End Date
-                                                </label>
-                                                <input
-                                                    value={finishDate }
-                                                   
-                                                    placeholder='End Date in (yyyy-mm-dd) format'
-                                                    onChange={(e) => setFinishDate(e.target.value)}
-                                                    className="w-full rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] px-4 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
-                                                />
-                                                                                                   
                                             </div>
                                         </div>
 

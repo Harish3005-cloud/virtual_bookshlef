@@ -13,6 +13,60 @@ export default function DashboardPage() {
   const [shelves, setShelves] = useState<custom_shelves[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showUserManagement, setShowUserManagement] = useState(false);
+  const [users, setUsers] = useState<{user_id: number, user_name: string, email: string, shelf_count: number}[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+
+  const fetchUsers = async () => {
+    if (session?.user?.name !== 'admin') return;
+    
+    setIsLoadingUsers(true);
+    try {
+      const response = await fetch('/api/admin/users');
+      const data = await response.json();
+      if (response.ok) {
+        setUsers(data.users || []);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (response.ok) {
+        // Refresh the users list
+        await fetchUsers();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('An error occurred while deleting the user');
+    }
+  };
+
+  const toggleUserManagement = () => {
+    if (!showUserManagement) {
+      fetchUsers();
+    }
+    setShowUserManagement(!showUserManagement);
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -97,6 +151,52 @@ export default function DashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* User Management Panel */}
+        {showUserManagement && (
+          <div className="mb-8 bg-[#1a1a1a] p-6 rounded-lg border border-[#2a2a2a] shadow-lg">
+            <h2 className="text-xl font-semibold text-gray-100 mb-6">User Management</h2>
+            {isLoadingUsers ? (
+              <div className="text-center py-4 text-gray-400">Loading users...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-[#2a2a2a]">
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Username</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Shelves</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#2a2a2a]">
+                    {users.map((user) => (
+                      <tr key={user.user_id} className="hover:bg-[#2a2a2a] transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{user.user_id}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{user.user_name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{user.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.shelf_count}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          {user.shelf_count === 0 && (
+                            <button
+                              onClick={() => handleDeleteUser(user.user_id)}
+                              className="text-red-600 hover:text-red-900"
+                              disabled={user.user_name === 'admin'}
+                              title={user.user_name === 'admin' ? 'Cannot delete admin user' : 'Delete user'}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Search Bar */}
         <div className="mb-8">
           <div className="flex gap-4">
@@ -142,12 +242,22 @@ export default function DashboardPage() {
         <div>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-100">Books</h2>
-            <Link
-              href="/shelf/new"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-sm font-medium shadow-lg shadow-indigo-500/20"
-            >
-              Create New Shelf
-            </Link>
+            <div className="flex space-x-4">
+              {session?.user?.name === 'admin' && (
+                <button
+                  onClick={toggleUserManagement}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                >
+                  {showUserManagement ? 'Hide Users' : 'View Users'}
+                </button>
+              )}
+              <Link
+                href="/shelf/new"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all text-sm font-medium shadow-lg shadow-indigo-500/20"
+              >
+                Create New Shelf
+              </Link>
+            </div>
           </div>
 
           {loading ? (
