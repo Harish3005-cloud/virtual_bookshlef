@@ -6,13 +6,23 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Book, custom_shelves } from '@/types';
 
+interface TopRatedBook {
+  book_id: number;
+  title: string;
+  Authors: string;
+  TotalRatings: number;
+  AverageRating: number;
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
   const [shelves, setShelves] = useState<custom_shelves[]>([]);
+  const [topRatedBooks, setTopRatedBooks] = useState<TopRatedBook[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [topRatedLoading, setTopRatedLoading] = useState(true);
   const [showUserManagement, setShowUserManagement] = useState(false);
   const [users, setUsers] = useState<{user_id: number, user_name: string, email: string, shelf_count: number}[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
@@ -78,6 +88,7 @@ export default function DashboardPage() {
     if (session) {
       fetchBooks();
       fetchShelves();
+      fetchTopRatedBooks();
     }
   }, [session]);
 
@@ -100,6 +111,20 @@ export default function DashboardPage() {
       setShelves(data.shelves || []);
     } catch (error) {
       console.error('Error fetching shelves:', error);
+    }
+  };
+
+  const fetchTopRatedBooks = async () => {
+    try {
+      const response = await fetch('/api/books/top-rated');
+      const data = await response.json();
+      if (response.ok) {
+        setTopRatedBooks(data.books || []);
+      }
+    } catch (error) {
+      console.error('Error fetching top rated books:', error);
+    } finally {
+      setTopRatedLoading(false);
     }
   };
 
@@ -217,6 +242,44 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Top Rated Books */}
+        {!topRatedLoading && topRatedBooks.length > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-100">Top Rated Books</h2>
+              <p className="text-sm text-gray-400">{topRatedBooks.length} titles</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {topRatedBooks.map((book) => {
+                const averageRating = Number(book.AverageRating);
+                const ratingText = Number.isFinite(averageRating)
+                  ? `${averageRating.toFixed(2)} ★`
+                  : 'No rating';
+                return (
+                <Link
+                  key={book.book_id}
+                  href={`/book/${book.book_id}`}
+                  className="card-hover bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-4 group"
+                >
+                  <h3 className="font-semibold text-gray-100 mb-1 group-hover:text-indigo-400 transition-colors">
+                    {book.title}
+                  </h3>
+                  <p className="text-sm text-gray-400 mb-2 line-clamp-2">{book.Authors}</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-yellow-400 font-semibold">
+                      {ratingText}
+                    </span>
+                    <span className="text-gray-500">
+                      {book.TotalRatings} ratings
+                    </span>
+                  </div>
+                </Link>
+              );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* My Shelves Section */}
         {shelves.length > 0 && (
           <div className="mb-12">
@@ -244,12 +307,20 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-gray-100">Books</h2>
             <div className="flex space-x-4">
               {session?.user?.name === 'admin' && (
-                <button
-                  onClick={toggleUserManagement}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                >
-                  {showUserManagement ? 'Hide Users' : 'View Users'}
-                </button>
+                <>
+                  <button
+                    onClick={toggleUserManagement}
+                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    {showUserManagement ? 'Hide Users' : 'View Users'}
+                  </button>
+                  <Link
+                    href="/dashboard/triggers"
+                    className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+                  >
+                    Manage Triggers
+                  </Link>
+                </>
               )}
               <Link
                 href="/shelf/new"

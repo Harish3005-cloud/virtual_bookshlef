@@ -6,12 +6,22 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Book } from '@/types';
 
+interface TopRatedBook {
+  book_id: number;
+  title: string;
+  Authors: string;
+  TotalRatings: number;
+  AverageRating: number;
+}
+
 export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
   const [search, setSearch] = useState('');
+  const [topRatedBooks, setTopRatedBooks] = useState<TopRatedBook[]>([]);
   const [loading, setLoading] = useState(true);
+  const [topRatedLoading, setTopRatedLoading] = useState(true);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -22,6 +32,7 @@ export default function HomePage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       fetchBooks();
+      fetchTopRatedBooks();
     }
   }, [status]);
 
@@ -47,6 +58,20 @@ export default function HomePage() {
       console.error('Error searching books:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTopRatedBooks = async () => {
+    try {
+      const response = await fetch('/api/public/top-rated');
+      const data = await response.json();
+      if (response.ok) {
+        setTopRatedBooks(data.books || []);
+      }
+    } catch (error) {
+      console.error('Error fetching top rated books:', error);
+    } finally {
+      setTopRatedLoading(false);
     }
   };
 
@@ -112,6 +137,41 @@ export default function HomePage() {
             </button>
           </div>
         </div>
+
+        {/* Top Rated Books */}
+        {!topRatedLoading && topRatedBooks.length > 0 && (
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-gray-100">Top Rated Books</h2>
+              <p className="text-sm text-gray-400">{topRatedBooks.length} titles</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {topRatedBooks.map((book) => {
+                const averageRating = Number(book.AverageRating);
+                const ratingText = Number.isFinite(averageRating)
+                  ? `${averageRating.toFixed(2)} ★`
+                  : 'No rating';
+
+                return (
+                  <Link
+                    key={book.book_id}
+                    href="/login"
+                    className="card-hover bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-4 group"
+                  >
+                    <h3 className="font-semibold text-gray-100 mb-1 group-hover:text-indigo-400 transition-colors">
+                      {book.title}
+                    </h3>
+                    <p className="text-sm text-gray-400 mb-2 line-clamp-2">{book.Authors}</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-yellow-400 font-semibold">{ratingText}</span>
+                      <span className="text-gray-500">{book.TotalRatings} ratings</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Books Grid */}
         <div>

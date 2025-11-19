@@ -12,11 +12,7 @@ const pool = mysql.createPool({
     queueLimit: 10
 });
 console.log('DBG: DB_HOST=', process.env.DB_HOST, 'DB_USER=', process.env.DB_USER, 'DB_DATABASE=', process.env.DB_DATABASE);
-export async function query(sql :string , parms:any[]= []){
-
-
-
-
-    const [rows,fields] = await pool.execute(sql,parms);
+export async function query(sql: string, parms: any[] = []) {
+    const [rows] = await pool.query(sql, parms);
     return rows;
 }
