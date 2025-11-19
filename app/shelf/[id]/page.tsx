@@ -149,37 +149,59 @@ export default function ShelfDetailPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* Header */}
-      <header className="bg-[#1a1a1a] border-b border-[#2a2a2a] shadow-lg">
+      <header className="bg-gradient-to-b from-[#1a1a1a] to-[#0f0f0f] border-b border-white/5 shadow-xl shadow-black/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center py-4">
-            <Link href="/dashboard" className="text-indigo-400 hover:text-indigo-300 mr-4 transition-colors">
-              ← Back to Dashboard 
-            </Link>
+          <div className="flex items-center justify-between py-6">
+            <div className="flex items-center space-x-4">
+              <Link 
+                href="/dashboard" 
+                className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
+              >
+                ← Back to Dashboard
+              </Link>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-400">
+              <span>{items.length} books</span>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-100">{shelfName || 'My Shelf'}</h1>
+        {/* Shelf Title */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-100 mb-2">
+            {shelfName || 'My Shelf'}
+          </h1>
+          <p className="text-gray-400">
+            Manage your personal book collection and reading progress
+          </p>
         </div>
 
         {items.length === 0 ? (
-          <div className="bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] shadow p-12 text-center">
-            <p className="text-gray-400 mb-4">This shelf is empty.</p>
-            <Link
-              href="/dashboard"
-              className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
-            >
-              Browse books to add
-            </Link>
+          <div className="bg-gradient-to-b from-[#181818] to-[#0f0f0f] rounded-2xl border border-white/5 shadow-xl shadow-black/40 p-16 text-center">
+            <div className="text-center">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-indigo-900 to-purple-900 rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-100 mb-3">This shelf is empty</h3>
+              <p className="text-gray-400 mb-6">Start building your collection by adding books from the dashboard</p>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 font-medium"
+              >
+                Browse Books
+              </Link>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {items.map((item) => (
               <div
                 key={item.item_id}
-                className="card-hover bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] overflow-hidden"
+                className="card-hover bg-gradient-to-b from-[#181818] to-[#0f0f0f] rounded-2xl border border-white/5 overflow-hidden group shadow-xl shadow-black/40 transition-transform duration-300 hover:-translate-y-1"
               >
                 {/* Book Cover */}
                 <Link href={`/book/${item.book_id}`}>
@@ -204,38 +226,30 @@ export default function ShelfDetailPage() {
                 </Link>
 
                 {/* Book Details */}
-                <div className="p-4">
+                <div className="p-5">
                   <Link href={`/book/${item.book_id}`}>
-                    <h3 className="font-semibold text-gray-100 mb-2 hover:text-indigo-400 line-clamp-2 transition-colors">
-                      {item.Title} 
+                    <h3 className="font-semibold text-gray-100 mb-2 line-clamp-2 group-hover:text-indigo-400 transition-colors">
+                      {item.Title}
                     </h3>
-                    <p className="text-sm text-gray-400 mb-2">ISBN: {item.ISBN}</p>
-                  
-                    
-                    <p className="text-sm text-gray-400 mb-2">Start Date: {item.start_date}</p>
-                    <p className="text-sm text-gray-400 mb-2">Finish Date: {item.finish_date}</p>
-                    <p className="text-sm text-gray-400 mb-2">Rating: {item.user_rating}/5</p>
-                    <p className="text-sm text-gray-400 mb-2">Favorite: {item.is_favorite ? 'Yes' : 'No'}</p>
-                    <p className="text-sm text-gray-400 mb-2">Added Date: {item.added_date}</p>
-                    
+                    <p className="text-sm text-gray-400 mb-3">ISBN: {item.ISBN}</p>
                   </Link>
 
                   {item.authors && item.authors.length > 0 && (
-                    <p className="text-sm text-gray-400 mb-2">
+                    <p className="text-sm text-gray-400 mb-3 line-clamp-1">
                       {item.authors.map((a: any) => a.Author_Name).join(', ')}
                     </p>
                   )}
 
                   {/* Reading Status Badge */}
-                  <div className="mb-3">
-                    <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusColor(item.reading_status)}`}>
+                  <div className="mb-4">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(item.reading_status)}`}>
                       {item.reading_status}
                     </span>
                   </div>
 
                   {/* Item Details */}
                   {editingItem === item.item_id ? (
-                    <div className="space-y-2">
+                    <div className="space-y-3 border-t border-white/5 pt-4">
                       <div>
                         <label className="block text-xs font-medium text-gray-400 mb-1">
                           Status
@@ -243,11 +257,11 @@ export default function ShelfDetailPage() {
                         <select
                           value={editForm.reading_status || item.reading_status}
                           onChange={(e) => setEditForm({ ...editForm, reading_status: e.target.value as any })}
-                          className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                          className="w-full text-sm rounded-lg bg-[#0a0a0a] border border-white/10 px-3 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all"
                         >
                           <option value="To-Read">To-Read</option>
                           <option value="Reading">Reading</option>
-                          <option value="Read">Read </option>
+                          <option value="Read">Read</option>
                         </select>
                       </div>
 
@@ -260,7 +274,7 @@ export default function ShelfDetailPage() {
                             type="number"
                             value={editForm.current_page || ''}
                             onChange={(e) => setEditForm({ ...editForm, current_page: parseInt(e.target.value) || null })}
-                            className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                            className="w-full text-sm rounded-lg bg-[#0a0a0a] border border-white/10 px-3 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all"
                             placeholder="Page number"
                           />
                         </div>
@@ -273,7 +287,7 @@ export default function ShelfDetailPage() {
                         <select
                           value={editForm.ownership_status || item.ownership_status}
                           onChange={(e) => setEditForm({ ...editForm, ownership_status: e.target.value })}
-                          className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                          className="w-full text-sm rounded-lg bg-[#0a0a0a] border border-white/10 px-3 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all"
                         >
                           <option value="Owned">Owned</option>
                           <option value="Ebook">Ebook</option>
@@ -292,7 +306,7 @@ export default function ShelfDetailPage() {
                           max="5"
                           value={editForm.user_rating || ''}
                           onChange={(e) => setEditForm({ ...editForm, user_rating: parseInt(e.target.value) || null })}
-                          className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                          className="w-full text-sm rounded-lg bg-[#0a0a0a] border border-white/10 px-3 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all"
                           placeholder="Rating"
                         />
                       </div>
@@ -306,7 +320,7 @@ export default function ShelfDetailPage() {
                             type="text"
                             value={editForm.start_date || ''}
                             onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
-                            className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                            className="w-full text-sm rounded-lg bg-[#0a0a0a] border border-white/10 px-3 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all"
                             placeholder="YYYY-MM-DD"
                             pattern="\d{4}-\d{2}-\d{2}"
                           />
@@ -320,7 +334,7 @@ export default function ShelfDetailPage() {
                             type="text"
                             value={editForm.finish_date || ''}
                             onChange={(e) => setEditForm({ ...editForm, finish_date: e.target.value })}
-                            className="w-full text-sm rounded bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none"
+                            className="w-full text-sm rounded-lg bg-[#0a0a0a] border border-white/10 px-3 py-2 text-gray-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all"
                             placeholder="YYYY-MM-DD"
                             pattern="\d{4}-\d{2}-\d{2}"
                           />
@@ -343,44 +357,58 @@ export default function ShelfDetailPage() {
                       <div className="flex gap-2 pt-2">
                         <button
                           onClick={() => handleSaveEdit(item.item_id)}
-                          className="flex-1 text-xs px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                          className="flex-1 text-xs px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 font-medium"
                         >
                           Save
                         </button>
                         <button
                           onClick={() => setEditingItem(null)}
-                          className="flex-1 text-xs px-3 py-1 border border-[#2a2a2a] text-gray-300 rounded hover:bg-[#2a2a2a] transition-colors"
+                          className="flex-1 text-xs px-3 py-2 border border-white/10 text-gray-300 rounded-lg hover:bg-white/5 transition-all"
                         >
                           Cancel
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      <p className="text-xs text-gray-400">
-                        <strong>Ownership:</strong> {item.ownership_status}
-                      </p>
+                    <div className="space-y-2 border-t border-white/5 pt-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Ownership:</span>
+                        <span className="text-gray-200 font-medium">{item.ownership_status}</span>
+                      </div>
+                      
                       {item.current_page && (
-                        <p className="text-xs text-gray-400">
-                          <strong>Current Page:</strong> {item.current_page}
-                        </p>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-400">Page:</span>
+                          <span className="text-gray-200 font-medium">{item.current_page}</span>
+                        </div>
                       )}
+                      
                       {item.user_rating && (
-                        <p className="text-xs text-gray-400">
-                          <strong>Rating:</strong> {item.user_rating}/5
-                        </p>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-400">Rating:</span>
+                          <div className="flex items-center">
+                            <span className="text-yellow-400 font-medium mr-1">★</span>
+                            <span className="text-gray-200 font-medium">{item.user_rating}/5</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {item.is_favorite === 1 && (
+                        <div className="flex items-center text-sm">
+                          <span className="text-red-400 font-medium">♥ Favorite</span>
+                        </div>
                       )}
 
                       <div className="flex gap-2 pt-2">
                         <button
                           onClick={() => handleEditItem(item)}
-                          className="flex-1 text-xs px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                          className="flex-1 text-xs px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 font-medium"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteItem(item.item_id)}
-                          className="flex-1 text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                          className="flex-1 text-xs px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all shadow-lg shadow-red-500/20 font-medium"
                         >
                           Remove
                         </button>

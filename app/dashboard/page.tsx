@@ -6,6 +6,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Book, custom_shelves } from '@/types';
 
+const ShelfDivider = () => (
+  <div className="h-2 w-full rounded-full bg-gradient-to-r from-amber-500/50 via-transparent to-transparent shadow-[0_12px_25px_rgba(0,0,0,0.45)]" />
+);
+
+const StatPill = ({ label, value }: { label: string; value: string | number }) => (
+  <div className="flex flex-col rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-sm text-gray-200 shadow-inner shadow-black/30 backdrop-blur">
+    <span className="text-xs uppercase tracking-widest text-gray-400">{label}</span>
+    <span className="text-2xl font-semibold text-gray-100">{value}</span>
+  </div>
+);
+
 interface TopRatedBook {
   book_id: number;
   title: string;
@@ -153,10 +164,16 @@ export default function DashboardPage() {
     return null;
   }
 
+  const statData = [
+    { label: 'Books in catalog', value: books.length },
+    { label: 'Shelves curated', value: shelves.length },
+    { label: 'Top rated titles', value: topRatedBooks.length },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#050505]">
       {/* Header */}
-      <header className="bg-[#1a1a1a] border-b border-[#2a2a2a] shadow-lg">
+      <header className="bg-[#090909]/80 backdrop-blur border-b border-white/5 shadow-2xl shadow-black/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
@@ -175,10 +192,37 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+        {/* Hero panel */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-r from-[#1a1a1a] via-[#0c0c0c] to-[#040404] p-8 md:p-12 shadow-2xl shadow-indigo-900/40">
+          <div className="absolute inset-0 opacity-35" style={{ background: 'linear-gradient(135deg, rgba(79,70,229,0.3), rgba(236,72,153,0.2))' }} />
+          <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.08) 75%, transparent 75%, transparent)', backgroundSize: '120px 120px' }} />
+          <div className="absolute inset-0 opacity-[0.12]" style={{ backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.05), transparent 40%)' }} />
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(/window.svg)', backgroundRepeat: 'no-repeat', backgroundPosition: '85% -10%', backgroundSize: '220px' }} />
+          <div className="relative grid gap-8 lg:grid-cols-[2fr,1fr] items-center">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-indigo-300/80">Welcome back</p>
+              <h2 className="mt-4 text-4xl md:text-5xl font-semibold text-white">
+                Curate a universe of stories, one shelf at a time.
+              </h2>
+              <p className="mt-4 text-lg text-gray-300 max-w-2xl">
+                Track your current reads, celebrate favorites, and discover what the community loves. Your personal library
+                hub has never looked this cozy.
+              </p>
+            </div>
+            <div className="grid gap-4">
+              {statData.map((stat) => (
+                <StatPill key={stat.label} label={stat.label} value={stat.value} />
+              ))}
+            </div>
+          </div>
+          <div className="mt-10">
+            <ShelfDivider />
+          </div>
+        </div>
         {/* User Management Panel */}
         {showUserManagement && (
-          <div className="mb-8 bg-[#1a1a1a] p-6 rounded-lg border border-[#2a2a2a] shadow-lg">
+          <div className="bg-[#111111] p-6 rounded-3xl border border-white/5 shadow-2xl shadow-black/50">
             <h2 className="text-xl font-semibold text-gray-100 mb-6">User Management</h2>
             {isLoadingUsers ? (
               <div className="text-center py-4 text-gray-400">Loading users...</div>
@@ -222,8 +266,10 @@ export default function DashboardPage() {
           </div>
         )}
 
+        <ShelfDivider />
+
         {/* Search Bar */}
-        <div className="mb-8">
+        <div>
           <div className="flex gap-4">
             <input
               type="text"
@@ -244,9 +290,12 @@ export default function DashboardPage() {
 
         {/* Top Rated Books */}
         {!topRatedLoading && topRatedBooks.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-100">Top Rated Books</h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-indigo-300/70">Community Picks</p>
+                <h2 className="text-3xl font-bold text-gray-100">Top Rated Books</h2>
+              </div>
               <p className="text-sm text-gray-400">{topRatedBooks.length} titles</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -259,7 +308,7 @@ export default function DashboardPage() {
                 <Link
                   key={book.book_id}
                   href={`/book/${book.book_id}`}
-                  className="card-hover bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] p-4 group"
+                    className="card-hover rounded-2xl border border-white/5 bg-gradient-to-b from-[#181818] to-[#0f0f0f] p-5 shadow-xl shadow-black/40 transition-transform duration-300 hover:-translate-y-1"
                 >
                   <h3 className="font-semibold text-gray-100 mb-1 group-hover:text-indigo-400 transition-colors">
                     {book.title}
@@ -280,6 +329,8 @@ export default function DashboardPage() {
           </div>
         )}
 
+        <ShelfDivider />
+
         {/* My Shelves Section */}
         {shelves.length > 0 && (
           <div className="mb-12">
@@ -289,7 +340,7 @@ export default function DashboardPage() {
                 <Link
                   key={shelf.Shelf_id}
                   href={`/shelf/${shelf.Shelf_id}`}
-                  className="card-hover bg-[#1a1a1a] rounded-lg p-6 border border-[#2a2a2a] group"
+                  className="card-hover bg-gradient-to-b from-[#161616] to-[#0c0c0c] rounded-2xl p-6 border border-white/5 group shadow-lg shadow-black/40"
                 >
                   <h3 className="text-lg font-medium text-gray-100 mb-2 group-hover:text-indigo-400 transition-colors">
                     {shelf.Shelf_name}
@@ -300,6 +351,8 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        <ShelfDivider />
 
         {/* Books Grid */}
         <div>
@@ -353,7 +406,7 @@ export default function DashboardPage() {
                 <Link
                   key={book.Book_id}
                   href={`/book/${book.Book_id}`}
-                  className="card-hover bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] overflow-hidden group"
+                  className="card-hover bg-gradient-to-b from-[#141414] to-[#080808] rounded-2xl border border-white/5 overflow-hidden group shadow-lg shadow-black/40"
                 >
                   {book.CoverImage_URL ? (
                     <div className="relative w-full h-64 overflow-hidden bg-[#2a2a2a]">
