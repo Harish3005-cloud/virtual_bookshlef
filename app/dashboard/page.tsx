@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
   const fetchUsers = async () => {
-    if (session?.user?.name !== 'admin') return;
+    if (session?.user?.email !== 'admin@gmail.com') return;
     
     setIsLoadingUsers(true);
     try {
@@ -250,8 +250,8 @@ export default function DashboardPage() {
                             <button
                               onClick={() => handleDeleteUser(user.user_id)}
                               className="text-red-600 hover:text-red-900"
-                              disabled={user.user_name === 'admin'}
-                              title={user.user_name === 'admin' ? 'Cannot delete admin user' : 'Delete user'}
+                              disabled={user.email === 'admin@gmail.com'}
+                              title={user.email === 'admin@gmail.com' ? 'Cannot delete admin user' : 'Delete user'}
                             >
                               Delete
                             </button>
@@ -359,7 +359,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-100">Books</h2>
             <div className="flex space-x-4">
-              {session?.user?.name === 'admin' && (
+              {session?.user?.email === 'admin@gmail.com' && (
                 <>
                   <button
                     onClick={toggleUserManagement}

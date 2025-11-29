@@ -7,7 +7,7 @@ export async function GET() {
   const session = await getServerSession(authOptions);
   
   // Check if user is admin
-  if (session?.user?.name !== 'admin') {
+  if (session?.user?.email !== 'admin@gmail.com') {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 403 }
@@ -20,7 +20,7 @@ export async function GET() {
       `SELECT u.user_id, u.user_name, u.email, COUNT(s.shelf_id) as shelf_count 
        FROM users u 
        LEFT JOIN custom_shelves s ON u.user_id = s.user_id 
-       WHERE u.user_name != 'admin'
+       WHERE u.email != 'admin@gmail.com'
        GROUP BY u.user_id, u.user_name, u.email`
     ) as any[];
 
@@ -39,7 +39,7 @@ export async function DELETE(request: Request) {
   const { userId } = await request.json();
   
   // Check if user is admin
-  if (session?.user?.name !== 'admin') {
+  if (session?.user?.email !== 'admin@gmail.com') {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 403 }
